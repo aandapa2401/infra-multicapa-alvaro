@@ -1,0 +1,68 @@
+services:
+
+  db:
+    image: mariadb:11
+    container_name: mariadb
+    restart: always
+
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: mala_pass
+
+    volumes:
+      - db_data:/var/lib/mysql
+
+    networks:
+      - backend_net
+
+    healthcheck:
+      test: ["CMD-SHELL", "exit 0"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  backend:
+    image: wordpress:latest
+    container_name: wordpress
+    restart: always
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppass
+      WORDPRESS_DB_NAME: wordpress
+
+    networks:
+      - backend_net
+      - frontend_net
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    restart: always
+
+    ports:
+      - "80:80"
+
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+
+    depends_on:
+      - backend
+
+    networks:
+      - frontend_net
+
+volumes:
+  db_data:
+
+networks:
+  backend_net:
+  frontend_net:
