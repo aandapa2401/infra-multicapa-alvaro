@@ -9,7 +9,7 @@ services:
       MYSQL_ROOT_PASSWORD: rootpass
       MYSQL_DATABASE: wordpress
       MYSQL_USER: wpuser
-      MYSQL_PASSWORD: mala_pass
+      MYSQL_PASSWORD: wppass
 
     volumes:
       - db_data:/var/lib/mysql
